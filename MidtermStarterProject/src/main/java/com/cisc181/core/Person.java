@@ -2,6 +2,9 @@ package com.cisc181.core;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.regex.Pattern;
+
+import ch.qos.logback.core.boolex.Matcher;
 
 /*
  * comment
@@ -44,8 +47,13 @@ public abstract class Person {
 		return DOB;
 	}
 
-	public void setDOB(Date DOB) {
-		this.DOB = DOB;
+	public void setDOB(Date DOB) throws PersonException{
+		if ((Calendar.getInstance().get(Calendar.YEAR)-DOB.getYear())>100){
+			throw new PersonException(this);
+		}
+		else{
+			this.DOB = DOB;
+		}
 	}
 
 	public void setAddress(String newAddress) {
@@ -56,8 +64,17 @@ public abstract class Person {
 		return address;
 	}
 
-	public void setPhone(String newPhone_number) {
-		phone_number = newPhone_number;
+	public void setPhone(String newPhone_number) throws PersonException{
+		String regex = "^\\(?([0-9]{3})\\)?[-.\\s]?([0-9]{3})[-.\\s]?([0-9]{4})$";
+		Pattern pattern = Pattern.compile(regex);
+		java.util.regex.Matcher matcher = pattern.matcher(newPhone_number);
+		if(matcher.matches())
+	    {
+			this.phone_number = (matcher.replaceFirst("($1)-$2-$3"));
+	    }
+		else{
+			throw new PersonException(this);
+		}
 	}
 
 	public String getPhone() {
@@ -83,16 +100,30 @@ public abstract class Person {
 	 * Constructors Constructor with arguments
 	 */
 
-	public Person(String FirstName, String MiddleName, String LastName,
-			Date DOB, String Address, String Phone_number, String Email) {
+	public Person(String FirstName, String MiddleName, String LastName, Date DOB, String Address, String Phone_number, String Email) throws PersonException{
+		if ((Calendar.getInstance().get(Calendar.YEAR)-DOB.getYear())>100){
+			throw new PersonException(this);
+		}
+		else{
+			this.DOB = DOB;
+		}
+		//hopefully i changed this so it works correctly to format the way midterm wants it
+		String regex = "^\\(?([0-9]{3})\\)?[-.\\s]?([0-9]{3})[-.\\s]?([0-9]{4})$";
+		Pattern pattern = Pattern.compile(regex);
+		java.util.regex.Matcher matcher = pattern.matcher(Phone_number);
+		if(matcher.matches())
+	    {
+			this.phone_number = (matcher.replaceFirst("($1)-$2-$3"));
+	    }
+		else{
+			throw new PersonException(this);
+		}
+		
 		this.FirstName = FirstName;
 		this.MiddleName = MiddleName;
 		this.LastName = LastName;
-		this.DOB = DOB;
 		this.address = Address;
-		this.phone_number = Phone_number;
 		this.email_address = Email;
-		
 	}
 
 	public void PrintName() {
